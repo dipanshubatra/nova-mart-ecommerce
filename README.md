@@ -505,7 +505,18 @@ novamart-showcase/
 
 ---
 
-## 📝 License
+## � Want the Source Code?
+
+This repository is private. If you're interested in the full source code for learning,
+collaboration, or hiring purposes — feel free to reach out!
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/dipanshubatra)
+[![Email](https://img.shields.io/badge/Email-Contact_Me-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:devbatra887@gmail.com)
+[![GitHub](https://img.shields.io/badge/GitHub-Follow-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/dipanshubatra)
+
+---
+
+## �📝 License
 
 This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
