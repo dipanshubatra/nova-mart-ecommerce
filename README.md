@@ -18,8 +18,8 @@
 
 ## Live Demo
 
-- **Frontend**: [https://martnova.vercel.app](https://martnova.vercel.app)
-- **Swagger UI**: [https://ecommercebackend-2be7.onrender.com/swagger-ui/index.html](https://ecommercebackend-2be7.onrender.com/swagger-ui/index.html)
+🌐 **Live Application**  
+https://martnova.vercel.app
 
 ## Overview
 
