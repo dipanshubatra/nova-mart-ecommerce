@@ -372,16 +372,36 @@ See [docs/database-design.md](docs/database-design.md) for the full schema docum
 
 ## 📊 Performance Testing
 
-Results and test plans are in the [performance-testing/](performance-testing/) folder.
+### Authentication API
 
-| File | Description |
-|------|-------------|
-| [jmeter-test-plan.md](performance-testing/jmeter-test-plan.md) | JMeter test plan configuration |
-| [auth-api-results.png](performance-testing/auth-api-results.png) | Authentication API performance |
-| [product-api-results.png](performance-testing/product-api-results.png) | Product API performance |
-| [cart-api-results.png](performance-testing/cart-api-results.png) | Cart API performance |
-| [order-api-results.png](performance-testing/order-api-results.png) | Order API performance |
-| [performance-summary.md](performance-testing/performance-summary.md) | Overall performance summary |
+| Metric | Value |
+|---------|---------|
+| Samples | 250 |
+| Average Response Time | 180-250 ms |
+| Error Rate | 0% |
+| Throughput | 20+ req/sec |
+
+![Authentication API](performance-testing/auth-api-results.png)
+
+---
+
+### Product Listing API
+
+| Metric | Value |
+|---------|---------|
+| Samples | 5,250 |
+| Average Response Time | 182 ms |
+| Minimum Response Time | 110 ms |
+| Maximum Response Time | 17,941 ms |
+| Error Rate | 0.00% |
+| Throughput | 10.7 req/sec |
+| 90th Percentile | 290 ms |
+| 95th Percentile | 326 ms |
+| 99th Percentile | 395 ms |
+
+Load testing performed using Apache JMeter against the public product listing endpoint under concurrent user traffic.
+
+![Product API Performance](performance-testing/product-api-results.png)
 
 ---
 
