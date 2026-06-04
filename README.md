@@ -65,7 +65,7 @@ The system is fully containerized with Docker and deployed on Render with Postgr
 
 ## Architecture
 
-![System Architecture](diagrams/system-architecture.png)
+![System Architecture](diagrams/system-architecture.svg)
 
 The system follows a microservices-inspired architecture with clear separation of concerns.
 
@@ -377,7 +377,7 @@ All emails sent asynchronously via @Async:
 
 ## Authentication Flow
 
-![Authentication Flow](diagrams/authentication-flow.png)
+![Authentication Flow](diagrams/authentication-flow.svg)
 
 NovaMart uses a dual authentication system: JWT-based authentication for traditional login and Google OAuth2 for social login.
 
@@ -499,11 +499,11 @@ Performance testing results and documentation are available in the [performance-
 novamart-showcase/
 ├── README.md
 ├── diagrams/
-│   ├── system-architecture.png
-│   ├── authentication-flow.png
-│   ├── order-workflow.png
-│   ├── redis-cache-flow.png
-│   └── deployment-architecture.png
+│   ├── system-architecture.svg
+│   ├── authentication-flow.svg
+│   ├── order-workflow.svg
+│   ├── Spring-cache-flow.svg
+│   └── deployment-architecture.svg
 ├── screenshots/
 │   ├── home-page.png
 │   ├── product-page.png
