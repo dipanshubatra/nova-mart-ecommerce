@@ -12,52 +12,52 @@
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" alt="MIT License">
 </p>
 
-<h1 align="center">🛒 NovaMart</h1>
+<h1 align="center">NovaMart</h1>
 
 <p align="center">
   A production-ready e-commerce platform with secure authentication, real-time inventory management, and automated order processing — built with <strong>Spring Boot 3</strong> and <strong>React</strong>.
 </p>
 
 <p align="center">
-  <a href="https://martnova.vercel.app"><img src="https://img.shields.io/badge/🌐_Live_Demo-martnova.vercel.app-blue?style=for-the-badge" alt="Live Demo"></a>
+  <a href="https://martnova.vercel.app"><img src="https://img.shields.io/badge/Live_Demo-martnova.vercel.app-blue?style=for-the-badge" alt="Live Demo"></a>
   &nbsp;
-  <a href="https://ecommercebackend-2be7.onrender.com/swagger-ui/index.html"><img src="https://img.shields.io/badge/📖_Swagger_UI-API_Docs-green?style=for-the-badge" alt="Swagger UI"></a>
+  <a href="https://ecommercebackend-2be7.onrender.com/swagger-ui/index.html"><img src="https://img.shields.io/badge/Swagger_UI-API_Docs-green?style=for-the-badge" alt="Swagger UI"></a>
 </p>
 
 ---
 
-## 📌 Table of Contents
+## Table of Contents
 
-- [Overview](#-overview)
-- [Screenshots](#-screenshots)
-- [Tech Stack](#-tech-stack)
-- [Architecture](#-architecture)
-- [Features](#-features)
-- [API Endpoints](#-api-endpoints)
-- [Authentication Flow](#-authentication-flow)
-- [Caching Strategy](#-caching-strategy)
-- [Rate Limiting](#-rate-limiting)
-- [Email System](#-email-system)
-- [Database Schema](#-database-schema)
-- [Performance Testing](#-performance-testing)
-- [Local Setup](#-local-setup)
-- [Deployment](#-deployment)
-- [Project Structure](#-project-structure)
-- [License](#-license)
+- [Overview](#overview)
+- [Screenshots](#screenshots)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Features](#features)
+- [API Endpoints](#api-endpoints)
+- [Authentication Flow](#authentication-flow)
+- [Caching Strategy](#caching-strategy)
+- [Rate Limiting](#rate-limiting)
+- [Email System](#email-system)
+- [Database Schema](#database-schema)
+- [Performance Testing](#performance-testing)
+- [Local Setup](#local-setup)
+- [Deployment](#deployment)
+- [Project Structure](#project-structure)
+- [License](#license)
 
 ---
 
-## 🧭 Overview
+## Overview
 
 NovaMart is a fully containerized, production-ready e-commerce platform. It features comprehensive user authentication with **JWT and Google OAuth2**, real-time cart management with stock reservation, automated email notifications via **Brevo API**, and intelligent caching for optimal performance.
 
 The system is deployed using **Docker** on Render (backend) and **Vercel** (frontend) with a managed PostgreSQL database.
 
-> ⚠️ The source code for this project is **private**. This repository serves as a public showcase with diagrams, screenshots, API documentation, and performance results.
+> Note: The source code for this project is **private**. This repository serves as a public showcase with diagrams, screenshots, API documentation, and performance results.
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
 | Home Page | Product Page | Cart Page |
 |:---------:|:------------:|:---------:|
@@ -69,7 +69,7 @@ The system is deployed using **Docker** on Render (backend) and **Vercel** (fron
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 | Category | Technology | Purpose |
 |----------|------------|---------|
@@ -95,7 +95,7 @@ The system is deployed using **Docker** on Render (backend) and **Vercel** (fron
 
 ---
 
-## 🏗 Architecture
+## Architecture
 
 <p align="center">
   <img src="diagrams/system-architecture.svg" alt="System Architecture" width="100%">
@@ -109,9 +109,9 @@ The system follows a microservices-inspired architecture with clear separation o
 
 ---
 
-## ✨ Features
+## Features
 
-### 🔐 Authentication Module
+### Authentication Module
 - User registration with email verification (OTP + verification link)
 - Email verification via clickable link token
 - Email verification via 6-digit OTP (max 5 attempts, then locked)
@@ -124,20 +124,20 @@ The system follows a microservices-inspired architecture with clear separation o
 - Email verification status check
 - Google OAuth2 login with auto user/cart creation and JWT token issuance
 
-### 🛡️ JWT Security
+### JWT Security
 - Access Token: 15 minutes expiry (HMAC256)
 - Refresh Token: 7 days expiry, stored in database
 - Token rotation on every refresh
 - JWT Filter validates token type (access vs refresh)
 - Token type claim (`"access"` / `"refresh"`) prevents token misuse
 
-### 🚦 Rate Limiting
+### Rate Limiting
 - Login: 5 attempts per minute per IP
 - Register: 5 attempts per 10 minutes per IP
 - Forgot Password: 3 attempts per 10 minutes per IP
 - In-memory `ConcurrentHashMap` per IP using Bucket4j
 
-### 👤 User Module
+### User Module
 - Paginated user list (Admin only)
 - Get own profile from JWT
 - Update own profile
@@ -146,7 +146,7 @@ The system follows a microservices-inspired architecture with clear separation o
 - Role-based access: `ADMIN` (roleId=101), `USER` (roleId=102)
 - Roles seeded via `CommandLineRunner` on startup
 
-### 📦 Product Module
+### Product Module
 - Add product to category (Admin)
 - Paginated product list (cached)
 - Admin product list
@@ -157,11 +157,11 @@ The system follows a microservices-inspired architecture with clear separation o
 - Soft-safe delete with order item nullification and cart clearing
 - Special price auto-calculation: `price - (discount% * price)`, rounded to 2 decimal places
 
-### 📂 Category Module
+### Category Module
 - Create, update, delete category (Admin)
 - Paginated category list (public)
 
-### 🛒 Cart Module
+### Cart Module
 - Add product to cart with stock reservation check (`quantity - reservedQuantity`)
 - Duplicate product prevention in cart
 - All carts list (Admin)
@@ -171,7 +171,7 @@ The system follows a microservices-inspired architecture with clear separation o
 - Auto-recalculate cart total on every operation
 - Abandoned cart cleanup scheduler
 
-### 📋 Order Module
+### Order Module
 - Place order with stock pre-check
 - Payment entity creation
 - Shipping address snapshot on order
@@ -183,39 +183,39 @@ The system follows a microservices-inspired architecture with clear separation o
 - Update order status (Admin, cache evicted)
 - Order statuses: `Order Accepted !` → `SHIPPED` → `DELIVERED`
 
-### 📍 Address Module
+### Address Module
 - Create, read, update, delete addresses
 - Update with deduplication (reassigns users if same address exists)
 - Delete removes address from all associated users
 
-### 📧 Email System (Brevo REST API)
+### Email System (Brevo REST API)
 All emails sent asynchronously via `@Async`:
 - **Verification Email** — 6-digit OTP (10 min expiry) + clickable link, HTML styled
 - **Password Reset OTP Email** — 6-digit OTP, 10 min expiry
 - **Order Confirmation Email** — full order summary table with items, quantities, prices, total, animated HTML
 - **Daily Report Email** — revenue, total orders, new users, cancelled orders for previous day
 
-### ⏰ Scheduler
+### Scheduler
 - Daily report at **9:00 AM** (cron: `0 0 9 * * *`)
 - Fetches yesterday's revenue, total orders, new user count, cancelled orders
 - Sends daily report email to admin
 
-### 📁 File Service
+### File Service
 - Image upload for products (multipart, stored in `images/` folder)
 - Serve product images via `GET /api/images/{fileName}`
 
-### 💾 Caching Strategy
+### Caching Strategy
 - Spring Cache (in-memory / simple cache)
 - `@Cacheable` on: `getAllProducts`, `searchByCategory`, `searchByKeyword`, `getAllOrders`, `getUserOrders`, `getOrderById`, `getAllUsers`
 - `@CacheEvict` on all mutating operations
 - Cache keys use `pageNumber`, `pageSize`, `sortBy`, `sortOrder` combinations
 
-### 🔒 Security Configuration
+### Security Configuration
 - **Public routes:** `/api/public/**`, `/api/verify-email`, `/api/register`, `/api/login`, `/api/refresh`, `/api/resend-otp`, `/api/verify-otp`, `/api/forgot-password`, `/api/reset-password`, `/swagger-ui/**`, `/v3/api-docs/**`
 - **Admin routes:** `/api/admin/**`
 - CORS configured, BCrypt password encoding, OAuth2 login configured
 
-### 🗄️ Database
+### Database
 - PostgreSQL (Render hosted)
 - Hibernate DDL `auto=update`
 - HikariCP pool: max 3 connections, min idle 1 (Render free tier optimized)
@@ -223,7 +223,7 @@ All emails sent asynchronously via `@Async`:
 
 ---
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### Authentication
 | Method | Endpoint | Auth | Description |
@@ -301,7 +301,7 @@ All emails sent asynchronously via `@Async`:
 
 ---
 
-## 🔑 Authentication Flow
+## Authentication Flow
 
 <p align="center">
   <img src="diagrams/authentication-flow.svg" alt="Authentication Flow" width="100%">
@@ -311,7 +311,7 @@ NovaMart uses a dual authentication system — JWT-based login and Google OAuth2
 
 ---
 
-## 💾 Caching Strategy
+## Caching Strategy
 
 <p align="center">
   <img src="diagrams/Spring-cache-flow.svg" alt="Spring Cache Flow" width="100%">
@@ -333,7 +333,7 @@ All mutating operations (create, update, delete) trigger `@CacheEvict` to ensure
 
 ---
 
-## 🚦 Rate Limiting
+## Rate Limiting
 
 Rate limiting is implemented using **Bucket4j** with in-memory `ConcurrentHashMap` storage per IP address.
 
@@ -347,7 +347,7 @@ The token bucket algorithm ensures fair usage and prevents brute-force attacks o
 
 ---
 
-## 📧 Email System
+## Email System
 
 NovaMart integrates with **Brevo SMTP API** for all transactional emails. All emails are sent asynchronously via `@Async` to prevent blocking the main thread.
 
@@ -360,7 +360,7 @@ NovaMart integrates with **Brevo SMTP API** for all transactional emails. All em
 
 ---
 
-## 🗄️ Database Schema
+## Database Schema
 
 See [docs/database-design.md](docs/database-design.md) for the full schema documentation.
 
@@ -370,7 +370,7 @@ See [docs/database-design.md](docs/database-design.md) for the full schema docum
 
 ---
 
-## 📊 Performance Testing
+## Performance Testing
 
 ### Authentication API
 
@@ -405,7 +405,7 @@ Load testing performed using Apache JMeter against the public product listing en
 
 ---
 
-## 🚀 Local Setup
+## Local Setup
 
 ### Prerequisites
 - Java 17+
@@ -454,7 +454,7 @@ App starts at `http://localhost:8080` · Swagger UI at `http://localhost:8080/sw
 
 ---
 
-## ☁️ Deployment
+## Deployment
 
 | Layer | Platform | URL |
 |-------|----------|-----|
@@ -470,7 +470,7 @@ App starts at `http://localhost:8080` · Swagger UI at `http://localhost:8080/sw
 4. Frontend deployed to Vercel via Git integration
 5. Environment variables configured in Render dashboard
 
-> 📝 HikariCP pool is optimized for Render free tier: `maximumPoolSize=3`, `minimumIdle=1`
+> Note: HikariCP pool is optimized for Render free tier: `maximumPoolSize=3`, `minimumIdle=1`
 
 ### Environment Variables Reference
 
@@ -485,7 +485,7 @@ App starts at `http://localhost:8080` · Swagger UI at `http://localhost:8080/sw
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 novamart-showcase/
