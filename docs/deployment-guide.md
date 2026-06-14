@@ -11,6 +11,7 @@ NovaMart follows a modern microservices-inspired architecture with clear separat
 - **Backend**: Spring Boot application deployed as Docker container on Render
 - **Frontend**: React application deployed on Vercel
 - **Database**: PostgreSQL managed database on Render
+- **Cache**: Redis distributed cache on Upstash (256MB) for performance optimization
 - **Email Service**: Brevo API integration for transactional emails
 
 ## Prerequisites
@@ -25,11 +26,15 @@ NovaMart follows a modern microservices-inspired architecture with clear separat
    - Free tier available
    - Required for frontend hosting
 
-3. **Brevo Account** (https://www.brevo.com)
+3. **Upstash Account** (https://upstash.com)
+   - Free tier available (256MB Redis)
+   - Required for distributed caching
+
+4. **Brevo Account** (https://www.brevo.com)
    - Free tier available
    - Required for email services
 
-4. **Google Cloud Console** (https://console.cloud.google.com)
+5. **Google Cloud Console** (https://console.cloud.google.com)
    - Required for Google OAuth2 setup
    - Free tier available
 
@@ -130,6 +135,55 @@ spring:
       max-lifetime: 1800000
 ```
 
+### Step 2.5: Set Up Upstash Redis
+
+#### 2.5.1 Create Upstash Account
+
+1. Visit https://upstash.com
+2. Sign up using GitHub, GitLab, or email
+3. Verify your email address
+
+#### 2.5.2 Create Redis Database
+
+1. Log in to Upstash dashboard
+2. Click "Create Database"
+3. Configure database:
+   - **Name**: novamart-redis
+   - **Region**: Choose nearest region (prefer same as Render backend)
+   - **Plan**: Free (256MB - recommended for development)
+4. Click "Create"
+5. Wait for database to be provisioned (1-2 minutes)
+6. Note the following credentials:
+   - REST API URL
+   - REST API Token
+   - Redis URL (for direct connections)
+
+#### 2.5.3 Configure Redis Connection
+
+The application uses Spring Data Redis with Lettuce client for optimal performance:
+
+```yaml
+spring:
+  redis:
+    host: ${SPRING_REDIS_HOST}
+    port: ${SPRING_REDIS_PORT}
+    password: ${SPRING_REDIS_PASSWORD}
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+```
+
+**Redis Configuration Benefits**:
+- Distributed caching for horizontal scalability
+- Persistent cache storage across deployments
+- High-performance key-value operations
+- Automatic failover and redundancy
+- Connection pooling for optimal performance
+
 ### Step 3: Deploy Backend to Render
 
 #### 3.1 Connect Git Repository
@@ -159,6 +213,11 @@ SPRING_DATASOURCE_PASSWORD=<database-password>
 
 # Server Configuration
 PORT=8080
+
+# Redis Configuration (Upstash)
+SPRING_REDIS_HOST=<upstash-redis-host>
+SPRING_REDIS_PORT=<upstash-redis-port>
+SPRING_REDIS_PASSWORD=<upstash-redis-password>
 
 # Google OAuth2 (if using)
 GOOGLE_CLIENT_ID=<your-google-client-id>
@@ -395,6 +454,9 @@ For schema changes, use Flyway or Liquibase:
 | SPRING_DATASOURCE_USERNAME | Database username | Yes | novamart_user |
 | SPRING_DATASOURCE_PASSWORD | Database password | Yes | secure_password |
 | PORT | Application port | Yes | 8080 |
+| SPRING_REDIS_HOST | Upstash Redis host | Yes | redis-xxx.upstash.io |
+| SPRING_REDIS_PORT | Upstash Redis port | Yes | 6379 |
+| SPRING_REDIS_PASSWORD | Upstash Redis password | Yes | your-redis-password |
 | GOOGLE_CLIENT_ID | Google OAuth2 Client ID | Optional | xxx.apps.googleusercontent.com |
 | GOOGLE_CLIENT_SECRET | Google OAuth2 Client Secret | Optional | GOCSPX-xxx |
 | BREVO_API_KEY | Brevo API key | Yes | xkeysib-xxx |

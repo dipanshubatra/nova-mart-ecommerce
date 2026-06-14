@@ -6,6 +6,8 @@
   <img src="https://img.shields.io/badge/Java-17-orange?style=flat-square&logo=openjdk&logoColor=white" alt="Java 17">
   <img src="https://img.shields.io/badge/Spring_Boot-3.0.1-6DB33F?style=flat-square&logo=springboot&logoColor=white" alt="Spring Boot 3.0.1">
   <img src="https://img.shields.io/badge/PostgreSQL-Database-4169E1?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL">
+  <img src="https://img.shields.io/badge/Redis-Caching-DC382D?style=flat-square&logo=redis&logoColor=white" alt="Redis">
+  <img src="https://img.shields.io/badge/Upstash-Redis_256MB-DC382D?style=flat-square&logo=redis&logoColor=white" alt="Upstash Redis">
   <img src="https://img.shields.io/badge/JWT-Auth-000000?style=flat-square&logo=jsonwebtokens&logoColor=white" alt="JWT">
   <img src="https://img.shields.io/badge/Docker-Container-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker">
   <img src="https://img.shields.io/badge/Deployed_on-Render-46E3B7?style=flat-square&logo=render&logoColor=white" alt="Deployed on Render">
@@ -49,9 +51,9 @@
 
 ## Overview
 
-NovaMart is a fully containerized, production-ready e-commerce platform. It features comprehensive user authentication with **JWT and Google OAuth2**, real-time cart management with stock reservation, automated email notifications via **Brevo API**, and intelligent caching for optimal performance.
+NovaMart is a fully containerized, production-ready e-commerce platform. It features comprehensive user authentication with **JWT and Google OAuth2**, real-time cart management with stock reservation, automated email notifications via **Brevo API**, and intelligent distributed caching for optimal performance using **Redis (Upstash 256MB)**.
 
-The system is deployed using **Docker** on Render (backend) and **Vercel** (frontend) with a managed PostgreSQL database.
+The system is deployed using **Docker** on Render (backend) and **Vercel** (frontend) with a managed PostgreSQL database and distributed Redis caching layer via Upstash.
 
 > Note: The source code for this project is **private**. This repository serves as a public showcase with diagrams, screenshots, API documentation, and performance results.
 
@@ -78,7 +80,7 @@ The system is deployed using **Docker** on Render (backend) and **Vercel** (fron
 | Security | Spring Security + JWT (auth0 java-jwt 4.2.1) | Authentication & authorization |
 | OAuth2 | Spring OAuth2 Client | Google OAuth2 login |
 | Database | Spring Data JPA + PostgreSQL | Data persistence |
-| Caching | Spring Boot Cache (`@Cacheable`, `@CacheEvict`) | Performance optimization |
+| Caching | Redis (Upstash 256MB) + Spring Cache | Distributed caching & performance optimization |
 | Email | Spring Boot Mail + Brevo SMTP API | Transactional emails via REST |
 | Validation | Spring Boot Validation | Input validation |
 | API Documentation | SpringDoc OpenAPI / Swagger UI 2.0.2 | API documentation |
@@ -92,6 +94,7 @@ The system is deployed using **Docker** on Render (backend) and **Vercel** (fron
 | Frontend Deployment | Vercel | Frontend hosting |
 | Backend Deployment | Render | Backend hosting |
 | Database Hosting | PostgreSQL on Render | Managed database |
+| Cache Hosting | Redis on Upstash (256MB) | Managed Redis caching |
 
 ---
 
@@ -101,7 +104,7 @@ The system is deployed using **Docker** on Render (backend) and **Vercel** (fron
   <img src="diagrams/system-architecture.svg" alt="System Architecture" width="100%">
 </p>
 
-The system follows a microservices-inspired architecture with clear separation of concerns. The Spring Boot backend handles all business logic, authentication, and data persistence, while the React frontend provides a responsive user interface. PostgreSQL serves as the primary database with Spring Cache for performance optimization. The system is deployed using Docker containers on Render for the backend and Vercel for the frontend.
+The system follows a microservices-inspired architecture with clear separation of concerns. The Spring Boot backend handles all business logic, authentication, and data persistence, while the React frontend provides a responsive user interface. PostgreSQL serves as the primary database with distributed Redis caching (Upstash 256MB) for optimal performance. The system is deployed using Docker containers on Render for the backend and Vercel for the frontend.
 
 <p align="center">
   <img src="diagrams/deployment-architecture.svg" alt="Deployment Architecture" width="100%">
@@ -205,10 +208,13 @@ All emails sent asynchronously via `@Async`:
 - Serve product images via `GET /api/images/{fileName}`
 
 ### Caching Strategy
-- Spring Cache (in-memory / simple cache)
+- **Distributed Redis Caching** (Upstash 256MB) for production-grade performance
+- Spring Cache abstraction with Redis backend
 - `@Cacheable` on: `getAllProducts`, `searchByCategory`, `searchByKeyword`, `getAllOrders`, `getUserOrders`, `getOrderById`, `getAllUsers`
 - `@CacheEvict` on all mutating operations
 - Cache keys use `pageNumber`, `pageSize`, `sortBy`, `sortOrder` combinations
+- Automatic cache expiration and TTL management
+- Connection pooling for optimal Redis performance
 
 ### Security Configuration
 - **Public routes:** `/api/public/**`, `/api/verify-email`, `/api/register`, `/api/login`, `/api/refresh`, `/api/resend-otp`, `/api/verify-otp`, `/api/forgot-password`, `/api/reset-password`, `/swagger-ui/**`, `/v3/api-docs/**`
@@ -424,6 +430,9 @@ SPRING_DATASOURCE_PASSWORD=your_db_password
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 PORT=8080
+SPRING_REDIS_HOST=your_upstash_redis_host
+SPRING_REDIS_PORT=your_upstash_redis_port
+SPRING_REDIS_PASSWORD=your_upstash_redis_password
 ```
 
 ### Run with Docker
@@ -461,6 +470,7 @@ App starts at `http://localhost:8080` · Swagger UI at `http://localhost:8080/sw
 | Frontend | Vercel (global CDN, auto-deploy from Git) | [martnova.vercel.app](https://martnova.vercel.app) |
 | Backend | Render (Docker container, HTTPS enabled) | [ecommercebackend-2be7.onrender.com](https://ecommercebackend-2be7.onrender.com) |
 | Database | PostgreSQL on Render (automated backups) | Managed PostgreSQL |
+| Cache | Redis on Upstash (256MB, distributed caching) | Managed Redis |
 | API Docs | SpringDoc OpenAPI / Swagger UI | [/swagger-ui/index.html](https://ecommercebackend-2be7.onrender.com/swagger-ui/index.html) |
 
 **Deployment process:**
@@ -482,6 +492,9 @@ App starts at `http://localhost:8080` · Swagger UI at `http://localhost:8080/sw
 | `GOOGLE_CLIENT_ID` | Google OAuth2 client ID |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth2 client secret |
 | `PORT` | Application port (default: `8080`) |
+| `SPRING_REDIS_HOST` | Upstash Redis host URL |
+| `SPRING_REDIS_PORT` | Upstash Redis port |
+| `SPRING_REDIS_PASSWORD` | Upstash Redis password |
 
 ---
 

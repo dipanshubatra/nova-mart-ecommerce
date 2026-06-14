@@ -111,21 +111,32 @@ NovaMart is built on a modern, enterprise-grade technology stack designed for sc
 - Optimized for Render free tier
 - DDL auto=update for schema management
 
-### Spring Boot Cache
+### Spring Boot Cache + Redis (Upstash)
 
-**Purpose**: Performance optimization through caching
+**Purpose**: Performance optimization through distributed caching
 
 **Details**:
-- In-memory cache implementation
+- Redis distributed cache implementation via Upstash (256MB)
+- Spring Cache abstraction with Redis backend
 - @Cacheable for method result caching
 - @CacheEvict for cache invalidation
 - Cache key generation based on method parameters
+- Automatic TTL management and expiration
+- Connection pooling for optimal performance
+
+**Redis Configuration**:
+- Upstash Redis 256MB allocation
+- Distributed caching for horizontal scalability
+- Persistent cache storage across deployments
+- High-performance key-value operations
+- Automatic failover and redundancy
 
 **Cached Operations**:
 - Product listings and searches
 - Order data by user
 - User lists for admin
 - Category-based product queries
+- Authentication tokens and sessions
 
 ### Spring Boot Mail + Brevo SMTP API
 
