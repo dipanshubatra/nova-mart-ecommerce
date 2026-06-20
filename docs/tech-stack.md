@@ -113,7 +113,7 @@ NovaMart is built on a modern, enterprise-grade technology stack designed for sc
 
 ### Spring Boot Cache + Redis (Upstash)
 
-**Purpose**: Performance optimization through distributed caching
+**Purpose**: Performance optimization through distributed caching and OTP storage
 
 **Details**:
 - Redis distributed cache implementation via Upstash (256MB)
@@ -123,6 +123,7 @@ NovaMart is built on a modern, enterprise-grade technology stack designed for sc
 - Cache key generation based on method parameters
 - Automatic TTL management and expiration
 - Connection pooling for optimal performance
+- **OTP Storage**: Email verification and password reset OTPs stored in Redis with TTL
 
 **Redis Configuration**:
 - Upstash Redis 256MB allocation
@@ -137,6 +138,32 @@ NovaMart is built on a modern, enterprise-grade technology stack designed for sc
 - User lists for admin
 - Category-based product queries
 - Authentication tokens and sessions
+- **OTP tokens** for email verification and password reset
+
+### Cloudinary
+
+**Purpose**: Cloud image storage and CDN delivery
+
+**Details**:
+- Cloud-based image storage and management
+- Automatic image optimization and transformation
+- Global CDN for fast image delivery
+- Secure image upload with API authentication
+- On-the-fly image resizing and format conversion
+- Responsive image generation
+
+**Features Used**:
+- Product image upload and storage
+- Automatic image optimization
+- CDN delivery for performance
+- Secure URL generation
+- Image transformation capabilities
+
+**Configuration**:
+- Cloud name for account identification
+- API key and secret for authentication
+- Upload presets for image processing
+- Folder organization for product images
 
 ### Spring Boot Mail + Brevo SMTP API
 

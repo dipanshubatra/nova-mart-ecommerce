@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.png" alt="NovaMart Banner" width="100%">
+  <video src="assets/Novamart.mp4" width="100%" max-width="1200px" controls style="border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.2);"></video>
 </p>
 
 <p align="center">
@@ -80,7 +80,7 @@ The system is deployed using **Docker** on Render (backend) and **Vercel** (fron
 | Security | Spring Security + JWT (auth0 java-jwt 4.2.1) | Authentication & authorization |
 | OAuth2 | Spring OAuth2 Client | Google OAuth2 login |
 | Database | Spring Data JPA + PostgreSQL | Data persistence |
-| Caching | Redis (Upstash 256MB) + Spring Cache | Distributed caching & performance optimization |
+| Caching | Redis (Upstash 256MB) + Spring Cache | Distributed caching, OTP storage & performance optimization |
 | Email | Spring Boot Mail + Brevo SMTP API | Transactional emails via REST |
 | Validation | Spring Boot Validation | Input validation |
 | API Documentation | SpringDoc OpenAPI / Swagger UI 2.0.2 | API documentation |
@@ -90,6 +90,7 @@ The system is deployed using **Docker** on Render (backend) and **Vercel** (fron
 | Scheduling | Spring Boot Scheduling (`@Scheduled`) | Scheduled tasks |
 | Async Processing | Spring Boot Async (`@Async`) | Asynchronous operations |
 | Containerization | Docker | Container deployment |
+| Image Storage | Cloudinary | Cloud image upload, optimization & CDN delivery |
 | Frontend | React | User interface |
 | Frontend Deployment | Vercel | Frontend hosting |
 | Backend Deployment | Render | Backend hosting |
@@ -117,12 +118,12 @@ The system follows a microservices-inspired architecture with clear separation o
 ### Authentication Module
 - User registration with email verification (OTP + verification link)
 - Email verification via clickable link token
-- Email verification via 6-digit OTP (max 5 attempts, then locked)
+- Email verification via 6-digit OTP stored in Redis (max 5 attempts, then locked)
 - JWT-based login with access and refresh tokens
 - Refresh token rotation (old token invalidated, new pair issued)
 - Secure logout with refresh token invalidation
-- OTP resend with 3-minute cooldown enforcement
-- Forgot password with OTP reset
+- OTP resend with 3-minute cooldown enforcement (Redis-backed)
+- Forgot password with OTP reset (Redis-backed)
 - Password reset with max 5 attempts (invalidates all refresh tokens)
 - Email verification status check
 - Google OAuth2 login with auto user/cart creation and JWT token issuance
@@ -156,7 +157,7 @@ The system follows a microservices-inspired architecture with clear separation o
 - Products by category (cached)
 - Case-insensitive keyword search (cached)
 - Update product with special price recalculation and cart synchronization
-- Upload product image (multipart)
+- Upload product image via Cloudinary (cloud storage with CDN)
 - Soft-safe delete with order item nullification and cart clearing
 - Special price auto-calculation: `price - (discount% * price)`, rounded to 2 decimal places
 
@@ -204,12 +205,14 @@ All emails sent asynchronously via `@Async`:
 - Sends daily report email to admin
 
 ### File Service
-- Image upload for products (multipart, stored in `images/` folder)
-- Serve product images via `GET /api/images/{fileName}`
+- Image upload for products via Cloudinary (cloud storage with CDN)
+- Automatic image optimization and transformation
+- Serve product images via Cloudinary CDN URLs
 
 ### Caching Strategy
 - **Distributed Redis Caching** (Upstash 256MB) for production-grade performance
 - Spring Cache abstraction with Redis backend
+- **OTP Storage**: Email verification and password reset OTPs stored in Redis with TTL
 - `@Cacheable` on: `getAllProducts`, `searchByCategory`, `searchByKeyword`, `getAllOrders`, `getUserOrders`, `getOrderById`, `getAllUsers`
 - `@CacheEvict` on all mutating operations
 - Cache keys use `pageNumber`, `pageSize`, `sortBy`, `sortOrder` combinations
@@ -433,6 +436,9 @@ PORT=8080
 SPRING_REDIS_HOST=your_upstash_redis_host
 SPRING_REDIS_PORT=your_upstash_redis_port
 SPRING_REDIS_PASSWORD=your_upstash_redis_password
+CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 ```
 
 ### Run with Docker

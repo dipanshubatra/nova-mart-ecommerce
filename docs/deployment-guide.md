@@ -38,6 +38,10 @@ NovaMart follows a modern microservices-inspired architecture with clear separat
    - Required for Google OAuth2 setup
    - Free tier available
 
+6. **Cloudinary Account** (https://cloudinary.com)
+   - Free tier available
+   - Required for cloud image storage and CDN
+
 ### Required Tools
 
 - Git
@@ -219,6 +223,11 @@ SPRING_REDIS_HOST=<upstash-redis-host>
 SPRING_REDIS_PORT=<upstash-redis-port>
 SPRING_REDIS_PASSWORD=<upstash-redis-password>
 
+# Cloudinary Configuration
+CLOUDINARY_CLOUD_NAME=<your-cloudinary-cloud-name>
+CLOUDINARY_API_KEY=<your-cloudinary-api-key>
+CLOUDINARY_API_SECRET=<your-cloudinary-api-secret>
+
 # Google OAuth2 (if using)
 GOOGLE_CLIENT_ID=<your-google-client-id>
 GOOGLE_CLIENT_SECRET=<your-google-client-secret>
@@ -284,9 +293,41 @@ GOOGLE_CLIENT_ID=<your-client-id>
 GOOGLE_CLIENT_SECRET=<your-client-secret>
 ```
 
-### Step 5: Configure Brevo Email Service
+### Step 5: Configure Cloudinary Image Service
 
-#### 5.1 Create Brevo Account
+#### 5.1 Create Cloudinary Account
+
+1. Visit https://cloudinary.com
+2. Sign up for free account
+3. Verify your email address
+4. Navigate to Dashboard → Settings
+5. Note the following credentials:
+   - Cloud Name
+   - API Key
+   - API Secret
+
+#### 5.2 Configure Image Upload Settings
+
+Cloudinary supports automatic image optimization and transformation:
+
+- Upload presets for image processing
+- Automatic format optimization
+- Responsive image generation
+- CDN delivery for fast image access
+
+#### 5.3 Update Environment Variables
+
+Add Cloudinary credentials to Render:
+
+```bash
+CLOUDINARY_CLOUD_NAME=<your-cloud-name>
+CLOUDINARY_API_KEY=<your-api-key>
+CLOUDINARY_API_SECRET=<your-api-secret>
+```
+
+### Step 6: Configure Brevo Email Service
+
+#### 6.1 Create Brevo Account
 
 1. Visit https://www.brevo.com
 2. Sign up for free account
@@ -295,7 +336,7 @@ GOOGLE_CLIENT_SECRET=<your-client-secret>
 5. Create new API key
 6. Note the API key
 
-#### 5.2 Configure Email Templates
+#### 6.2 Configure Email Templates
 
 Brevo supports HTML email templates. Configure templates for:
 - Email verification (with OTP and link)
@@ -303,7 +344,7 @@ Brevo supports HTML email templates. Configure templates for:
 - Order confirmation (with order details)
 - Daily report (with business metrics)
 
-#### 5.3 Update Environment Variables
+#### 6.3 Update Environment Variables
 
 Add Brevo credentials to Render:
 
@@ -457,6 +498,9 @@ For schema changes, use Flyway or Liquibase:
 | SPRING_REDIS_HOST | Upstash Redis host | Yes | redis-xxx.upstash.io |
 | SPRING_REDIS_PORT | Upstash Redis port | Yes | 6379 |
 | SPRING_REDIS_PASSWORD | Upstash Redis password | Yes | your-redis-password |
+| CLOUDINARY_CLOUD_NAME | Cloudinary cloud name | Yes | your-cloud-name |
+| CLOUDINARY_API_KEY | Cloudinary API key | Yes | xxxxxxxxxxxxxx |
+| CLOUDINARY_API_SECRET | Cloudinary API secret | Yes | xxxxxxxxxxxxxx |
 | GOOGLE_CLIENT_ID | Google OAuth2 Client ID | Optional | xxx.apps.googleusercontent.com |
 | GOOGLE_CLIENT_SECRET | Google OAuth2 Client Secret | Optional | GOCSPX-xxx |
 | BREVO_API_KEY | Brevo API key | Yes | xkeysib-xxx |

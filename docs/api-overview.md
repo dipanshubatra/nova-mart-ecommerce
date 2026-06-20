@@ -98,7 +98,7 @@ Register a new user account.
 ```
 
 **Features**:
-- Sends OTP via email
+- Sends OTP via email (stored in Redis with TTL)
 - Sends clickable verification link
 - Auto-creates cart
 - Auto-assigns USER role
@@ -137,7 +137,7 @@ Verify email via OTP.
 **Features**:
 - Max attempts configured via environment
 - Locks after max attempts
-- OTP expiry configured via environment
+- OTP expiry configured via environment (stored in Redis with TTL)
 - **Security Note**: Exact limits and timings should be configured in environment variables
 
 #### POST /api/login
@@ -226,7 +226,7 @@ Resend verification OTP.
 ```
 
 **Features**:
-- Cooldown period configured via environment
+- Cooldown period configured via environment (enforced via Redis)
 - Rate limited (limits configured via environment)
 - **Security Note**: Exact timing and limits should be configured in environment variables
 
@@ -269,7 +269,7 @@ Reset password with OTP.
 **Features**:
 - Max attempts configured via environment
 - Invalidates all refresh tokens
-- OTP expiry configured via environment
+- OTP expiry configured via environment (stored in Redis with TTL)
 - **Security Note**: Exact limits and timings should be configured in environment variables
 
 #### GET /api/verification-status
@@ -553,7 +553,8 @@ Upload product image (Admin only).
 ```json
 {
   "message": "Image uploaded successfully",
-  "filename": "product123.jpg"
+  "imageUrl": "https://res.cloudinary.com/your-cloud-name/image/upload/v123/product123.jpg",
+  "publicId": "product123"
 }
 ```
 

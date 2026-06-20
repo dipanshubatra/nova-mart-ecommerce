@@ -37,7 +37,7 @@ The vision behind NovaMart is to create a scalable, secure, and user-friendly e-
 
 ### Authentication & Security
 - Dual authentication system: JWT-based and Google OAuth2
-- Email verification with OTP and clickable links
+- Email verification with OTP (stored in Redis) and clickable links
 - Refresh token rotation for enhanced security
 - Rate limiting to prevent abuse
 - Role-based access control (RBAC)
@@ -45,7 +45,7 @@ The vision behind NovaMart is to create a scalable, secure, and user-friendly e-
 ### Product Management
 - Category-based product organization
 - Special price calculation with discounts
-- Image upload for products
+- Image upload for products via Cloudinary (cloud storage with CDN)
 - Soft delete with data integrity
 - Cached product listings for performance
 
@@ -69,9 +69,10 @@ The vision behind NovaMart is to create a scalable, secure, and user-friendly e-
 - Daily business reports for administrators
 
 ### Performance & Caching
-- Spring Cache implementation
+- Spring Cache implementation with Redis backend
 - Cached product listings and searches
 - Cached order data
+- OTP storage in Redis with TTL for email verification and password reset
 - Cache eviction on data modifications
 
 ### Database Design
