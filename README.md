@@ -1,5 +1,11 @@
 <p align="center">
-  <video src="assets/Novamart.mp4" width="100%" max-width="1200px" controls style="border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.2);"></video>
+  <img src="assets/banner.png" alt="NovaMart Banner" width="100%" style="border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.2);">
+</p>
+
+<p align="center">
+  <a href="assets/Novamart.mp4" target="_blank">
+    <img src="https://img.shields.io/badge/🎬 Watch_Demo-Video-red?style=for-the-badge&logo=video&logoColor=white" alt="Watch Demo Video">
+  </a>
 </p>
 
 <p align="center">
