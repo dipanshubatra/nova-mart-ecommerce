@@ -794,7 +794,7 @@ Remove item from cart.
 ### Order Endpoints
 
 #### POST /api/public/users/{emailId}/carts/{cartId}/payments/{paymentMethod}/order
-Place order.
+Place order with payment processing.
 
 **Headers**:
 - `Authorization: Bearer <access_token>`
@@ -802,15 +802,16 @@ Place order.
 **Path Parameters**:
 - `emailId`: User email
 - `cartId`: Cart ID
-- `paymentMethod`: Payment method (e.g., "CREDIT_CARD")
+- `paymentMethod`: Payment method (e.g., "CASHFREE")
 
 **Response**: 201 Created
 ```json
 {
   "orderId": 1,
-  "orderStatus": "Order Accepted !",
+  "orderStatus": "PENDING_PAYMENT",
   "orderDate": "2024-01-15T10:30:00",
-  "totalAmount": 1799.98
+  "totalAmount": 1799.98,
+  "paymentId": 1
 }
 ```
 
@@ -818,9 +819,101 @@ Place order.
 - Pre-checks stock
 - Creates payment entity
 - Saves shipping address snapshot
-- Decrements product quantity
-- Clears cart
-- Sends confirmation email (async)
+- Initiates payment process based on payment method
+- Sends confirmation email (async) after successful payment
+
+### Payment Endpoints
+
+#### POST /api/payments/cashfree/create
+Initiate Cashfree payment for an order.
+
+**Headers**:
+- `Authorization: Bearer <access_token>`
+
+**Request Body**:
+```json
+{
+  "orderId": 1,
+  "amount": 1799.98,
+  "customerEmail": "user@example.com",
+  "customerPhone": "1234567890"
+}
+```
+
+**Response**: 200 OK
+```json
+{
+  "paymentSessionId": "session_abc123",
+  "paymentLink": "https://payments.cashfree.com/order/session_abc123",
+  "expiryTime": "2024-01-15T11:00:00"
+}
+```
+
+**Features**:
+- Creates payment order with Cashfree API
+- Generates payment link for user checkout
+- Sets 30-minute expiry for payment completion
+- Stores payment session for callback verification
+
+#### POST /api/payments/cashfree/callback
+Cashfree payment callback webhook.
+
+**Headers**:
+- `X-Cashfree-Signature`: HMAC signature for verification
+
+**Request Body**:
+```json
+{
+  "orderId": "order_abc123",
+  "orderAmount": 1799.98,
+  "referenceId": "1",
+  "txStatus": "SUCCESS",
+  "paymentMode": "UPI",
+  "txTime": "2024-01-15T10:35:00"
+}
+```
+
+**Response**: 200 OK
+```json
+{
+  "message": "Payment processed successfully"
+}
+```
+
+**Features**:
+- Verifies HMAC signature for security
+- Updates payment status based on callback
+- Creates order on successful payment
+- Decrements product quantity on success
+- Clears cart on successful payment
+- Sends order confirmation email
+- Handles payment failures gracefully
+
+#### GET /api/payments/{orderId}/status
+Check payment status for an order.
+
+**Headers**:
+- `Authorization: Bearer <access_token>`
+
+**Path Parameters**:
+- `orderId`: Order ID
+
+**Response**: 200 OK
+```json
+{
+  "orderId": 1,
+  "paymentStatus": "SUCCESS",
+  "paymentMethod": "CASHFREE",
+  "amount": 1799.98,
+  "paymentDate": "2024-01-15T10:35:00",
+  "retryExpiry": "2024-01-15T11:00:00"
+}
+```
+
+**Features**:
+- Returns current payment status
+- Shows retry window expiry if payment failed
+- Allows user to check payment status before retry
 
 #### GET /api/admin/orders
 Get all orders (Admin only, cached).
@@ -846,6 +939,10 @@ Get all orders (Admin only, cached).
       "user": {
         "userId": 1,
         "email": "user@example.com"
+      },
+      "payment": {
+        "paymentStatus": "SUCCESS",
+        "paymentMethod": "CASHFREE"
       }
     }
   ],
@@ -1213,7 +1310,58 @@ curl -X GET [PRODUCTION_URL]/api/public/products \
 ```
 - **Security Note**: Replace [PRODUCTION_URL] with your configured backend URL
 
-## API Versioning and Deprecation
+## Payment Integration
+
+### Cashfree Payment Gateway
+
+NovaMart integrates with Cashfree payment gateway for secure payment processing.
+
+#### Payment Flow
+
+1. **Initiation**: User selects Cashfree as payment method at checkout
+2. **Order Creation**: System creates payment order via Cashfree API
+3. **Redirection**: User redirected to Cashfree checkout page
+4. **Payment**: User completes payment on Cashfree platform
+5. **Callback**: Cashfree sends webhook callback with payment status
+6. **Processing**: System verifies callback and updates order status
+7. **Completion**: Order confirmed on successful payment, cart cleared
+8. **Retry**: If payment fails, user has 30-minute window to retry
+
+#### Payment Statuses
+
+- `PENDING`: Payment initiated, awaiting user action
+- `SUCCESS`: Payment completed successfully
+- `FAILED`: Payment failed, retry available within 30 minutes
+- `EXPIRED`: Payment window expired (30 minutes)
+
+#### Security Features
+
+- HMAC signature verification for all webhooks
+- Secure API key management via environment variables
+- PCI DSS compliant payment processing
+- Encrypted data transmission
+- Token-based payment sessions
+
+#### Environment Configuration
+
+```bash
+CASHFREE_APP_ID=your_app_id
+CASHFREE_SECRET_KEY=your_secret_key
+CASHFREE_API_URL=https://sandbox.cashfree.com/api/v2  # or production URL
+```
+
+#### Webhook Configuration
+
+Configure webhook URL in Cashfree dashboard:
+- **Sandbox**: `https://your-backend.com/api/payments/cashfree/callback`
+- **Production**: `https://your-backend.com/api/payments/cashfree/callback`
+
+#### Error Handling
+
+- Payment failures are logged with detailed error messages
+- Users can retry failed payments within 30-minute window
+- Automatic cleanup of expired payment sessions
+- Alert notifications for payment anomalies
 
 ### Current Version
 - Version: v1

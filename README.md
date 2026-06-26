@@ -15,6 +15,9 @@
   <img src="https://img.shields.io/badge/Redis-Caching-DC382D?style=flat-square&logo=redis&logoColor=white" alt="Redis">
   <img src="https://img.shields.io/badge/Upstash-Redis_256MB-DC382D?style=flat-square&logo=redis&logoColor=white" alt="Upstash Redis">
   <img src="https://img.shields.io/badge/JWT-Auth-000000?style=flat-square&logo=jsonwebtokens&logoColor=white" alt="JWT">
+  <img src="https://img.shields.io/badge/Grafana-Monitoring-F46800?style=flat-square&logo=grafana&logoColor=white" alt="Grafana">
+  <img src="https://img.shields.io/badge/Loki-Logging-FF41B5?style=flat-square&logo=loki&logoColor=white" alt="Loki">
+  <img src="https://img.shields.io/badge/Cashfree-Payments-00AEEF?style=flat-square&logo=cashfree&logoColor=white" alt="Cashfree">
   <img src="https://img.shields.io/badge/Docker-Container-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker">
   <img src="https://img.shields.io/badge/Deployed_on-Render-46E3B7?style=flat-square&logo=render&logoColor=white" alt="Deployed on Render">
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" alt="MIT License">
@@ -57,9 +60,9 @@
 
 ## Overview
 
-NovaMart is a fully containerized, production-ready e-commerce platform. It features comprehensive user authentication with **JWT and Google OAuth2**, real-time cart management with stock reservation, automated email notifications via **Brevo API**, and intelligent distributed caching for optimal performance using **Redis (Upstash 256MB)**.
+NovaMart is a fully containerized, production-ready e-commerce platform. It features comprehensive user authentication with **JWT and Google OAuth2**, real-time cart management with stock reservation, automated email notifications via **Brevo API**, intelligent distributed caching for optimal performance using **Redis (Upstash 256MB)**, comprehensive monitoring with **Grafana and Loki**, and secure payment processing via **Cashfree**.
 
-The system is deployed using **Docker** on Render (backend) and **Vercel** (frontend) with a managed PostgreSQL database and distributed Redis caching layer via Upstash.
+The system is deployed using **Docker** on Render (backend) and **Vercel** (frontend) with a managed PostgreSQL database, distributed Redis caching layer via Upstash, and integrated monitoring stack with Grafana dashboards and Loki log aggregation.
 
 > Note: The source code for this project is **private**. This repository serves as a public showcase with diagrams, screenshots, API documentation, and performance results.
 
@@ -87,6 +90,8 @@ The system is deployed using **Docker** on Render (backend) and **Vercel** (fron
 | OAuth2 | Spring OAuth2 Client | Google OAuth2 login |
 | Database | Spring Data JPA + PostgreSQL | Data persistence |
 | Caching | Redis (Upstash 256MB) + Spring Cache | Distributed caching, OTP storage & performance optimization |
+| Monitoring | Grafana + Loki | Metrics visualization and log aggregation |
+| Payment | Cashfree Payment Gateway | Secure payment processing with retry mechanism |
 | Email | Spring Boot Mail + Brevo SMTP API | Transactional emails via REST |
 | Validation | Spring Boot Validation | Input validation |
 | API Documentation | SpringDoc OpenAPI / Swagger UI 2.0.2 | API documentation |
@@ -102,6 +107,8 @@ The system is deployed using **Docker** on Render (backend) and **Vercel** (fron
 | Backend Deployment | Render | Backend hosting |
 | Database Hosting | PostgreSQL on Render | Managed database |
 | Cache Hosting | Redis on Upstash (256MB) | Managed Redis caching |
+| Monitoring | Grafana + Loki | Metrics dashboards and log aggregation |
+| Payment Gateway | Cashfree | Secure payment processing |
 
 ---
 
@@ -183,7 +190,8 @@ The system follows a microservices-inspired architecture with clear separation o
 
 ### Order Module
 - Place order with stock pre-check
-- Payment entity creation
+- Payment entity creation via Cashfree integration
+- Cashfree payment flow with 30-minute retry window on failure
 - Shipping address snapshot on order
 - Product quantity decrement + cart clearing after order
 - Order confirmation email (async via Brevo)
@@ -198,12 +206,27 @@ The system follows a microservices-inspired architecture with clear separation o
 - Update with deduplication (reassigns users if same address exists)
 - Delete removes address from all associated users
 
+### Payment System (Cashfree)
+- **Cashfree Payment Gateway Integration** — Secure payment processing for orders
+- **Payment Flow** — User initiates payment → Cashfree checkout → Success/Failure callback
+- **Retry Mechanism** — 30-minute window to retry payment if initial attempt fails
+- **Payment Status Tracking** — Real-time payment status updates via webhooks
+- **Order Creation** — Order created only after successful payment confirmation
+
 ### Email System (Brevo REST API)
 All emails sent asynchronously via `@Async`:
 - **Verification Email** — 6-digit OTP (10 min expiry) + clickable link, HTML styled
 - **Password Reset OTP Email** — 6-digit OTP, 10 min expiry
 - **Order Confirmation Email** — full order summary table with items, quantities, prices, total, animated HTML
 - **Daily Report Email** — revenue, total orders, new users, cancelled orders for previous day
+
+### Monitoring & Observability (Grafana + Loki)
+- **Grafana Dashboards** — Real-time metrics visualization for application performance
+- **Loki Log Aggregation** — Centralized log collection and analysis
+- **Application Metrics** — CPU, memory, response times, error rates
+- **Business Metrics** — Order volume, payment success rates, user activity
+- **Alerting** — Configurable alerts for system health and business KPIs
+- **Log Correlation** — Trace logs across services for debugging
 
 ### Scheduler
 - Daily report at **9:00 AM** (cron: `0 0 9 * * *`)
@@ -295,6 +318,9 @@ All emails sent asynchronously via `@Async`:
 | Method | Endpoint | Auth | Description |
 |--------|----------|:----:|-------------|
 | `POST` | `/api/public/users/{emailId}/carts/{cartId}/payments/{paymentMethod}/order` | User | Place order |
+| `POST` | `/api/payments/cashfree/create` | User | Initiate Cashfree payment |
+| `POST` | `/api/payments/cashfree/callback` | Public | Cashfree payment callback |
+| `GET` | `/api/payments/{orderId}/status` | User | Check payment status |
 | `GET` | `/api/admin/orders` | Admin | Paginated all orders (cached) |
 | `GET` | `/api/public/users/{emailId}/orders` | User | User's orders (cached) |
 | `GET` | `/api/public/users/{emailId}/orders/{orderId}` | User | Single order (cached) |
@@ -445,6 +471,11 @@ SPRING_REDIS_PASSWORD=your_upstash_redis_password
 CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
 CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+CASHFREE_APP_ID=your_cashfree_app_id
+CASHFREE_SECRET_KEY=your_cashfree_secret_key
+CASHFREE_API_URL=https://sandbox.cashfree.com/api/v2
+GRAFANA_URL=your_grafana_url
+LOKI_URL=your_loki_url
 ```
 
 ### Run with Docker
@@ -483,6 +514,8 @@ App starts at `http://localhost:8080` · Swagger UI at `http://localhost:8080/sw
 | Backend | Render (Docker container, HTTPS enabled) | [ecommercebackend-2be7.onrender.com](https://ecommercebackend-2be7.onrender.com) |
 | Database | PostgreSQL on Render (automated backups) | Managed PostgreSQL |
 | Cache | Redis on Upstash (256MB, distributed caching) | Managed Redis |
+| Monitoring | Grafana + Loki | Metrics & Logs |
+| Payment Gateway | Cashfree | Payment Processing |
 | API Docs | SpringDoc OpenAPI / Swagger UI | [/swagger-ui/index.html](https://ecommercebackend-2be7.onrender.com/swagger-ui/index.html) |
 
 **Deployment process:**
@@ -507,6 +540,11 @@ App starts at `http://localhost:8080` · Swagger UI at `http://localhost:8080/sw
 | `SPRING_REDIS_HOST` | Upstash Redis host URL |
 | `SPRING_REDIS_PORT` | Upstash Redis port |
 | `SPRING_REDIS_PASSWORD` | Upstash Redis password |
+| `CASHFREE_APP_ID` | Cashfree application ID |
+| `CASHFREE_SECRET_KEY` | Cashfree secret key |
+| `CASHFREE_API_URL` | Cashfree API URL (sandbox/production) |
+| `GRAFANA_URL` | Grafana dashboard URL |
+| `LOKI_URL` | Loki log aggregation URL |
 
 ---
 

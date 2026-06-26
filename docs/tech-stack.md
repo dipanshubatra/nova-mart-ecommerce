@@ -140,6 +140,77 @@ NovaMart is built on a modern, enterprise-grade technology stack designed for sc
 - Authentication tokens and sessions
 - **OTP tokens** for email verification and password reset
 
+### Grafana
+
+**Purpose**: Metrics visualization and monitoring dashboards
+
+**Details**:
+- Real-time metrics visualization for application performance
+- Custom dashboards for business and technical metrics
+- CPU, memory, response times, error rates monitoring
+- Order volume, payment success rates, user activity tracking
+- Configurable alerts for system health and business KPIs
+- Integration with Prometheus for metrics collection
+
+**Monitoring Capabilities**:
+- Application performance metrics
+- Database connection pool metrics
+- Cache hit/miss ratios
+- API endpoint response times
+- Error rate tracking
+- Business metric dashboards
+
+### Loki
+
+**Purpose**: Log aggregation and analysis
+
+**Details**:
+- Centralized log collection from application services
+- Log aggregation and indexing for fast search
+- Log correlation across services for debugging
+- Integration with Grafana for unified monitoring
+- Efficient log storage with label-based querying
+
+**Logging Features**:
+- Structured logging with labels
+- Log retention policies
+- Real-time log streaming
+- Log query language (LogQL) for analysis
+- Integration with application logging framework
+
+### Cashfree Payment Gateway
+
+**Purpose**: Secure payment processing for e-commerce transactions
+
+**Details**:
+- Integration with Cashfree payment gateway API
+- Support for multiple payment methods (UPI, cards, net banking, wallets)
+- Secure payment flow with tokenization
+- Webhook-based payment status updates
+- 30-minute retry window for failed payments
+- Sandbox and production environment support
+
+**Payment Flow**:
+1. User initiates payment from checkout
+2. System creates payment order via Cashfree API
+3. User redirected to Cashfree checkout page
+4. User completes payment on Cashfree
+5. Cashfree sends callback with payment status
+6. System updates order status based on payment result
+7. If payment fails, user has 30-minute window to retry
+
+**Security Features**:
+- HMAC signature verification for webhooks
+- Secure API key management
+- PCI DSS compliant payment processing
+- Encrypted payment data transmission
+
+**Configuration**:
+- App ID and Secret Key for API authentication
+- API URL configuration (sandbox/production)
+- Webhook endpoint for payment callbacks
+- Callback signature verification
+
 ### Cloudinary
 
 **Purpose**: Cloud image storage and CDN delivery
@@ -403,6 +474,24 @@ NovaMart is built on a modern, enterprise-grade technology stack designed for sc
 
 ## Monitoring & Observability
 
+### Grafana + Loki Stack
+
+**Purpose**: Comprehensive monitoring and log aggregation
+
+**Details**:
+- Grafana for metrics visualization and dashboard creation
+- Loki for centralized log aggregation and analysis
+- Real-time monitoring of application health
+- Business metrics tracking (orders, payments, users)
+- Alert configuration for proactive issue detection
+
+**Key Features**:
+- Custom dashboards for different stakeholders
+- Real-time metrics with configurable refresh intervals
+- Log correlation across microservices
+- Historical data analysis and trend identification
+- Integration with existing monitoring tools
+
 ### Spring Boot Actuator
 
 **Purpose**: Application monitoring
@@ -425,11 +514,13 @@ The technologies in NovaMart work together as follows:
 1. **Frontend (React)** communicates with **Backend (Spring Boot)** via REST API
 2. **Spring Boot** uses **Spring Security** for authentication with **JWT** tokens
 3. **Spring Data JPA** abstracts database operations with **PostgreSQL**
-4. **Spring Boot Cache** optimizes performance by caching frequently accessed data
+4. **Spring Boot Cache** optimizes performance by caching frequently accessed data with **Redis**
 5. **Brevo API** handles email communications asynchronously
 6. **Bucket4j** implements rate limiting for security
-7. **Docker** containers the application for deployment on **Render**
-8. **Vercel** hosts the React frontend with global CDN
+7. **Cashfree** processes secure payments with retry mechanism
+8. **Grafana + Loki** provide comprehensive monitoring and log aggregation
+9. **Docker** containers the application for deployment on **Render**
+10. **Vercel** hosts the React frontend with global CDN
 
 ## Version Management
 
@@ -455,12 +546,14 @@ The technology stack was selected based on:
 
 Potential technology enhancements for future versions:
 
-- Redis for distributed caching
 - Elasticsearch for advanced search capabilities
 - RabbitMQ or Kafka for message queuing
 - Kubernetes for container orchestration
 - GraphQL for flexible API queries
 - Microservices architecture for better scalability
+- Prometheus for advanced metrics collection
+- Jaeger or Zipkin for distributed tracing
+- Redis Cluster for enhanced caching scalability
 
 ## Conclusion
 

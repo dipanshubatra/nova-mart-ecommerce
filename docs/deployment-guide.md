@@ -42,6 +42,17 @@ NovaMart follows a modern microservices-inspired architecture with clear separat
    - Free tier available
    - Required for cloud image storage and CDN
 
+7. **Cashfree Account** (https://www.cashfree.com)
+   - Free sandbox tier available
+   - Required for payment processing
+
+8. **Grafana Account** (https://grafana.com)
+   - Free tier available
+   - Required for metrics visualization
+
+9. **Loki** (can be self-hosted or cloud-hosted)
+   - Required for log aggregation
+
 ### Required Tools
 
 - Git
@@ -237,6 +248,16 @@ BREVO_API_KEY=<your-brevo-api-key>
 BREVO_SENDER_EMAIL=<your-sender-email>
 BREVO_SENDER_NAME=<your-sender-name>
 
+# Cashfree Payment Configuration
+CASHFREE_APP_ID=<your-cashfree-app-id>
+CASHFREE_SECRET_KEY=<your-cashfree-secret-key>
+CASHFREE_API_URL=https://sandbox.cashfree.com/api/v2
+
+# Monitoring Configuration
+GRAFANA_URL=<your-grafana-url>
+LOKI_URL=<your-loki-url>
+PROMETHEUS_URL=<your-prometheus-url>
+
 # JWT Configuration
 JWT_SECRET=<your-jwt-secret-key>
 JWT_EXPIRATION=<configured-in-milliseconds>
@@ -352,6 +373,155 @@ Add Brevo credentials to Render:
 BREVO_API_KEY=<your-api-key>
 BREVO_SENDER_EMAIL=noreply@yourdomain.com
 BREVO_SENDER_NAME=NovaMart
+```
+
+### Step 7: Configure Cashfree Payment Gateway
+
+#### 7.1 Create Cashfree Account
+
+1. Visit https://www.cashfree.com
+2. Sign up for sandbox account (free)
+3. Verify your email address
+4. Navigate to Dashboard → Settings → API Keys
+5. Note the following credentials:
+   - App ID
+   - Secret Key
+
+#### 7.2 Configure Payment Settings
+
+Cashfree supports multiple payment methods:
+- UPI (Unified Payments Interface)
+- Credit/Debit Cards
+- Net Banking
+- Wallets (Paytm, PhonePe, etc.)
+- EMI options
+
+#### 7.3 Update Environment Variables
+
+Add Cashfree credentials to Render:
+
+```bash
+CASHFREE_APP_ID=<your-app-id>
+CASHFREE_SECRET_KEY=<your-secret-key>
+CASHFREE_API_URL=https://sandbox.cashfree.com/api/v2
+```
+
+#### 7.4 Configure Webhooks
+
+1. In Cashfree dashboard, navigate to Webhooks
+2. Add webhook URL: `https://your-backend.onrender.com/api/payments/cashfree/callback`
+3. Select events to monitor:
+   - Payment Success
+   - Payment Failed
+   - Payment Expired
+4. Save webhook configuration
+
+### Step 8: Configure Grafana Monitoring
+
+#### 8.1 Set Up Grafana
+
+**Option 1: Grafana Cloud (Recommended)**
+
+1. Visit https://grafana.com/products/cloud/
+2. Sign up for free account
+3. Create a new stack
+4. Note the Grafana URL and API credentials
+
+**Option 2: Self-Hosted Grafana**
+
+```bash
+# Using Docker
+docker run -d -p 3000:3000 --name=grafana grafana/grafana
+
+# Access at http://localhost:3000
+# Default credentials: admin/admin
+```
+
+#### 8.2 Configure Data Sources
+
+1. Log in to Grafana
+2. Navigate to Configuration → Data Sources
+3. Add Prometheus as data source for metrics
+4. Add Loki as data source for logs
+5. Configure connection URLs and authentication
+
+#### 8.3 Create Dashboards
+
+**Application Metrics Dashboard**:
+- CPU usage
+- Memory usage
+- Response times
+- Error rates
+- Request throughput
+
+**Business Metrics Dashboard**:
+- Order volume
+- Payment success rates
+- User registrations
+- Revenue tracking
+
+#### 8.4 Configure Alerts
+
+1. Navigate to Alerting → New Alert Rule
+2. Set up alerts for:
+   - High error rates (>5%)
+   - Slow response times (>2s)
+   - Payment failures (>10%)
+   - Database connection issues
+3. Configure notification channels (email, Slack, etc.)
+
+### Step 9: Configure Loki Log Aggregation
+
+#### 9.1 Set Up Loki
+
+**Option 1: Grafana Cloud Loki**
+
+Included with Grafana Cloud stack.
+
+**Option 2: Self-Hosted Loki**
+
+```bash
+# Using Docker
+docker run -d -p 3100:3100 --name=loki grafana/loki
+```
+
+#### 9.2 Configure Application Logging
+
+Add Loki configuration to `application.properties`:
+
+```properties
+# Logging configuration for Loki
+logging.level.root=INFO
+logging.level.com.novamart=DEBUG
+logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} - %msg%n
+```
+
+#### 9.3 Install Promtail (Log Agent)
+
+```bash
+# Using Docker
+docker run -d --name=promtail \
+  -v /path/to/promtail-config.yml:/etc/promtail/config.yml \
+  grafana/promtail
+```
+
+Configure `promtail-config.yml`:
+
+```yaml
+server:
+  http_listen_port: 9080
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: novamart-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          app: novamart
+          env: production
 ```
 
 ## Frontend Deployment (Vercel)
@@ -506,6 +676,12 @@ For schema changes, use Flyway or Liquibase:
 | BREVO_API_KEY | Brevo API key | Yes | xkeysib-xxx |
 | BREVO_SENDER_EMAIL | Brevo sender email | Yes | noreply@novamart.com |
 | BREVO_SENDER_NAME | Brevo sender name | Yes | NovaMart |
+| CASHFREE_APP_ID | Cashfree application ID | Yes | your-app-id |
+| CASHFREE_SECRET_KEY | Cashfree secret key | Yes | your-secret-key |
+| CASHFREE_API_URL | Cashfree API URL | Yes | https://sandbox.cashfree.com/api/v2 |
+| GRAFANA_URL | Grafana dashboard URL | Yes | https://your-grafana-instance.com |
+| LOKI_URL | Loki log aggregation URL | Yes | http://your-loki-instance:3100 |
+| PROMETHEUS_URL | Prometheus metrics URL | Optional | http://your-prometheus:9090 |
 | JWT_SECRET | JWT signing secret | Yes | your-secure-secret-key-min-32-chars |
 | JWT_EXPIRATION | JWT access token expiry (ms) | No | <configured-in-milliseconds> |
 | REFRESH_TOKEN_EXPIRATION | Refresh token expiry (ms) | No | <configured-in-milliseconds> |
@@ -549,7 +725,24 @@ logging.level.root=INFO
 logging.level.com.novamart=DEBUG
 logging.level.org.springframework.web=INFO
 logging.level.org.hibernate=INFO
+
+# Loki integration (if using Promtail)
+logging.file.name=/var/log/novamart/application.log
+logging.logback.rollingpolicy.max-file-size=10MB
+logging.logback.rollingpolicy.max-history=30
 ```
+
+### Metrics Collection
+
+Spring Boot Actuator provides metrics that can be scraped by Prometheus:
+
+```properties
+# Enable actuator endpoints
+management.endpoints.web.exposure.include=health,metrics,info,prometheus
+management.metrics.export.prometheus.enabled=true
+```
+
+Access metrics at `/actuator/prometheus` endpoint.
 
 ## Security Best Practices
 

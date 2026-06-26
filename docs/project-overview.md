@@ -57,7 +57,9 @@ The vision behind NovaMart is to create a scalable, secure, and user-friendly e-
 
 ### Order Processing
 - Stock validation before order placement
-- Payment tracking
+- Cashfree payment gateway integration
+- 30-minute retry window for failed payments
+- Payment status tracking via webhooks
 - Shipping address snapshots
 - Automated confirmation emails
 - Order status workflow management
@@ -75,6 +77,14 @@ The vision behind NovaMart is to create a scalable, secure, and user-friendly e-
 - OTP storage in Redis with TTL for email verification and password reset
 - Cache eviction on data modifications
 
+### Monitoring & Observability
+- Grafana dashboards for real-time metrics visualization
+- Loki log aggregation for centralized logging
+- Application performance monitoring (CPU, memory, response times)
+- Business metrics tracking (orders, payments, revenue)
+- Configurable alerts for system health and KPIs
+- Log correlation across services for debugging
+
 ### Database Design
 - PostgreSQL for reliable data storage
 - 13 entities covering all business aspects
@@ -90,6 +100,9 @@ NovaMart leverages modern, industry-standard technologies to ensure reliability,
 - **PostgreSQL**: Robust relational database with advanced features
 - **Docker**: Containerization for consistent deployment
 - **Brevo API**: Reliable email service for transactional communications
+- **Cashfree**: Secure payment gateway with retry mechanism
+- **Grafana + Loki**: Comprehensive monitoring and log aggregation
+- **Redis**: Distributed caching for performance optimization
 
 ## Architecture Principles
 
@@ -101,6 +114,8 @@ The system follows several key architectural principles:
 4. **Asynchronous Processing**: Non-blocking email sending and scheduled tasks
 5. **Caching Strategy**: Intelligent caching to reduce database load
 6. **Rate Limiting**: Protect against abuse and ensure fair usage
+7. **Monitoring**: Real-time observability with Grafana and Loki
+8. **Payment Security**: Secure payment processing with Cashfree
 
 ## Deployment Strategy
 
@@ -109,6 +124,9 @@ NovaMart is designed for cloud-native deployment:
 - **Backend**: Render (Docker container) with auto-scaling
 - **Frontend**: Vercel with global CDN distribution
 - **Database**: Managed PostgreSQL on Render with automated backups
+- **Cache**: Redis on Upstash (256MB) for distributed caching
+- **Monitoring**: Grafana + Loki for metrics and log aggregation
+- **Payment**: Cashfree payment gateway integration
 - **Environment Variables**: Secure configuration management
 
 ## Future Considerations
@@ -119,10 +137,13 @@ While the current implementation provides a solid foundation, potential enhancem
 - Product reviews and ratings
 - Wishlist functionality
 - Multiple payment gateway integrations
-- Analytics and reporting dashboards
+- Analytics and reporting dashboards with Grafana
 - Mobile application development
 - Multi-language support
 - Advanced inventory management features
+- Distributed tracing with Jaeger or Zipkin
+- Message queuing with RabbitMQ or Kafka
+- Elasticsearch for advanced search capabilities
 
 ## Conclusion
 
